@@ -7,7 +7,7 @@ import type { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import userRoutes from "./routes/users";
+import userRoutes from "./routes/users.ts";
 
 dotenv.config();
 
