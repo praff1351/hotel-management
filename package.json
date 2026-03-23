@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "express-validator": "^7.3.1"
+    "express-validator": "^7.3.1",
+    "react-hook-form": "^7.71.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
   }
 }

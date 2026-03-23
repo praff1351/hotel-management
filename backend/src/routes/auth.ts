@@ -2,8 +2,9 @@ import jwt from "jsonwebtoken";
 import express from "express";
 import type { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
-import User from "../models/user";
+import User from "../models/user.ts";
 import bcrypt from "bcryptjs";
+import verifyToken from "../middleware/auth.ts";
 const router = express.Router();
 
 router.post(
@@ -45,10 +46,24 @@ router.post(
       res.cookie("auth_token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        maxAge: 86400000,
       });
+      res.status(200).json({ userId: user._id });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Something went wrong " });
     }
   },
 );
+
+router.get("/validate-token", verifyToken, (req: Request, res: Response) => {
+  res.status(200).send({ userId: req.userId });
+});
+
+router.post("/logout", (req: Request, res: Response) => {
+  res.clearCookie("auth_token", {
+    expires: new Date(0),
+  });
+  res.send();
+});
+export default router;
