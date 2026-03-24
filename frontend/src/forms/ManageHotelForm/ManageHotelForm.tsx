@@ -1,0 +1,113 @@
+import { FormProvider, useForm } from "react-hook-form";
+import DetailsSection from "./DetailsSection";
+import TypeSection from "./TypeSection";
+import FacilitiesSection from "./FacilitiesSection";
+import GuestsSection from "./GuestsSection";
+import ImagesSection from "./ImagesSection";
+import { hotelTypes } from "../../config/hotel-options-config";
+import type { HotelType } from "../../../../backend/src/models/hotel";
+import { useEffect } from "react";
+
+export type HotelFormData = {
+  name: string;
+  city: string;
+  country: string;
+  description: string;
+  type: string;
+  pricePerNight: string;
+  starRating: string;
+  facilities: string[];
+  imageFiles: FileList;
+  imageUrls: string[];
+  adultCount: number;
+  childCount: number;
+};
+
+type Props = {
+  hotel?: HotelType;
+  onSave: (hotelFormData: FormData) => void;
+  isLoading: boolean;
+};
+
+const ManageHotelForm = ({ onSave, isLoading, hotel }: Props) => {
+  const formMethods = useForm<HotelFormData>({
+    defaultValues: {
+      type: hotelTypes[0],
+    },
+  });
+  const { handleSubmit, reset } = formMethods;
+
+  useEffect(() => {
+    if (!hotel) return;
+
+    reset({
+      name: hotel.name,
+      city: hotel.city,
+      country: hotel.country,
+      description: hotel.description,
+      type: hotel.type,
+      pricePerNight: hotel.pricePerNight.toString(),
+      starRating: hotel.starRating.toString(),
+      facilities: hotel.facilities,
+      adultCount: hotel.adultCount,
+      childCount: hotel.childCount,
+
+      imageFiles: undefined as any,
+      imageUrls: hotel.imageUrls,
+    });
+  }, [hotel, reset]);
+
+  const onSubmit = handleSubmit((formDataJson: HotelFormData) => {
+    const formData = new FormData();
+    if (hotel) {
+      formData.append("hotelId", hotel._id);
+    }
+    formData.append("name", formDataJson.name);
+    formData.append("city", formDataJson.city);
+    formData.append("country", formDataJson.country);
+    formData.append("description", formDataJson.description);
+    formData.append("type", formDataJson.type);
+    formData.append("pricePerNight", formDataJson.pricePerNight.toString());
+    formData.append("starRating", formDataJson.starRating.toString());
+    formData.append("adultCount", formDataJson.adultCount.toString());
+    formData.append("childCount", formDataJson.childCount.toString());
+
+    formDataJson.facilities.forEach((facility, index) => {
+      formData.append(`facilities[${index}]`, facility);
+    });
+
+    if (formDataJson.imageUrls) {
+      formDataJson.imageUrls.forEach((url, index) => {
+        formData.append(`imageUrls[${index}]`, url);
+      });
+    }
+
+    Array.from(formDataJson.imageFiles).forEach((imageFile) => {
+      formData.append(`imageFiles`, imageFile);
+    });
+    onSave(formData);
+  });
+  return (
+    <FormProvider {...formMethods}>
+      <form className="flex flex-col gap-10" onSubmit={onSubmit}>
+        <DetailsSection />
+        <TypeSection />
+        <FacilitiesSection />
+        <GuestsSection />
+        <ImagesSection />
+
+        <span className="flex justify-end">
+          <button
+            disabled={isLoading}
+            type="submit"
+            className="bg-gray-500 text-white px-6 py-2 font-bold hover:bg-gray-600 text-xl rounded-lg disabled:bg-gray-300"
+          >
+            {isLoading ? "Saving..." : "Save"}
+          </button>
+        </span>
+      </form>
+    </FormProvider>
+  );
+};
+
+export default ManageHotelForm;
