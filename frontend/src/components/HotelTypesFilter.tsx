@@ -1,4 +1,3 @@
-import type React from "react";
 import { hotelTypes } from "../config/hotel-options-config";
 
 type Props = {

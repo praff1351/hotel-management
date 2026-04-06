@@ -1,4 +1,3 @@
-import React from "react";
 import { useQuery } from "react-query";
 import * as apiClient from "../../api-client.ts";
 import LatestDestinationCard from "../components/LatestDestinationCard.tsx";
